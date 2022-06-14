@@ -67,8 +67,8 @@ public:
     }
 
     SnakePiece nextHead(){
-      int row = head().getX();
-      int col = head().getY();
+      int row = head().getY();
+      int col = head().getX();
 
       switch (cur_direction) {
         case down :

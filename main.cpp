@@ -31,6 +31,7 @@ int main()
         // 4: go to 1, unless game over
     }
 
+    getch();
     endwin();
 
     std::cout << "GameOver" << std::endl;
