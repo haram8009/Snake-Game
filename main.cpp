@@ -4,9 +4,9 @@
 #include "src/SnakeGame.hpp"
 #include "src/Drawable.hpp"
 
-#define BOARD_DIM 20
+#define BOARD_DIM 21
 #define BOARD_ROWS BOARD_DIM
-#define BOARD_COLS BOARD_DIM * 2.5
+#define BOARD_COLS BOARD_DIM
 
 int main()
 {

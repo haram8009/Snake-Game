@@ -3,6 +3,7 @@
 #include "Board.hpp"
 #include "Drawable.hpp"
 #include "Apple.hpp"
+#include "Poison.hpp"
 #include "Empty.hpp"
 // controler -> change model
 // Apple이 random하게 나타나도록 함
@@ -16,9 +17,11 @@ class SnakeGame
   Board board;
   bool game_over;
   Apple *apple;
+  Poison *poison;
   Snake snake;
   Scoreboard scoreboard;
-  int score;
+  int growth;
+  int poisoned;
 
   void createApple()
   {
@@ -27,6 +30,12 @@ class SnakeGame
       apple = new Apple(y, x);
       board.add(*apple);
   }
+  void createPoison(){
+    int y,x;
+    board.getEmptyCoordinates(y,x);
+    poison = new Poison(y, x);
+    board.add(*poison);
+  }
 
   void handleNextPiece(SnakePiece next)
   {
@@ -34,6 +43,19 @@ class SnakeGame
       switch (board.getCharAt(next.getY(), next.getX())) {
         case 'A':
             eatApple();
+            break;
+        case 'P':
+            eatPoisn();
+            {
+                int emptyRow = snake.tail().getY();
+                int emptyCol = snake.tail().getX();
+                board.add(Empty(emptyRow, emptyCol));
+                snake.removePiece();
+                emptyRow = snake.tail().getY();
+                emptyCol = snake.tail().getX();
+                board.add(Empty(emptyRow, emptyCol));
+                snake.removePiece();
+            }
             break;
         case ' ':
         {
@@ -56,8 +78,15 @@ class SnakeGame
   {
       delete apple;
       apple = NULL;
-      score += 100; //// 스코어가 아니라 growth 아이템을 먹은 횟수가 되겠지..수정필요
-      scoreboard.updateScore(score);
+      growth += 1;
+      scoreboard.updateGrowth(growth); // update growth 로 함수를 바꿔야..?
+  }
+  void eatPoisn()
+  {
+      delete poison;
+      poison = NULL;
+      poisoned += 1;
+      scoreboard.updatePoisoned(poisoned);
   }
 
 public:
@@ -72,15 +101,18 @@ public:
     ~SnakeGame()
     {
         delete apple;
+        delete poison;
     }
 
     void initialize()
     {
       apple = NULL;
+      poison = NULL;
       board.initialize();
 
-      score = 0;
-      scoreboard.initialize(score);
+      growth = 0;
+      poison = 0;
+      scoreboard.initialize(growth, poisoned); // 여기도 수정 필요 ~~ (, poison )
 
       game_over = false;
       srand(time(NULL));
@@ -95,6 +127,10 @@ public:
       if(apple == NULL)
       {
           createApple();
+      }
+      if(poison == NULL)
+      {
+          createPoison();
       }
     }
 
@@ -128,7 +164,7 @@ public:
                 board.setTimeout(-1);
                 while(board.getInput()!='p')
                     ; // 다시 p를 누를때까지 루프를 벗어나지 않음 == 정지상태
-                board.setTimeout(1000);
+                board.setTimeout(1000); // 이거 이렇게 하면 안돼고 speed 값을 가져와야하는데...
                 break;
             default:
                 break;
@@ -143,6 +179,10 @@ public:
         {
             createApple();
         }
+        if(poison == NULL)
+        {
+            createPoison();
+        }
     }
 
     void redraw()
@@ -156,8 +196,12 @@ public:
         return game_over;
     }
 
-    int getScore()
+    int getGrowth()
     {
-        return score;
+        return growth;
+    }
+    int getPoisoned()
+    {
+        return poisoned;
     }
 };

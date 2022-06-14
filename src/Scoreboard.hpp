@@ -8,18 +8,24 @@ public:
     }
     Scoreboard(int width, int y, int x)
     {
-        score_win = newwin(1, width, y, x);
+        score_win = newwin(2, width, y, x); // 윈도우 높이가 2! 늘려야할거임
     }
-    void initialize(int initial_score)
+    void initialize(int initial_growth, int initial_poisoned)
     {
         clear();
-        mvwprintw(score_win, 0, 0, "Score:");
-        updateScore(initial_score);
+        mvwprintw(score_win, 0, 0, "Growth:");
+        mvwprintw(score_win, 1, 0, "Poisoned:");
+        updateGrowth(initial_growth);
+        updatePoisoned(initial_poisoned);
         refresh();
     }
-    void updateScore(int score)
+    void updateGrowth(int growth)
     {
-        mvwprintw(score_win, 0, score_win->_maxx-10, "%i", score );
+        mvwprintw(score_win, 0, score_win->_maxx-10, "%i", growth);
+    }
+    void updatePoisoned(int poisoned)
+    {
+        mvwprintw(score_win, 1, score_win->_maxx-10, "%i", poisoned);
     }
     void clear()
     {
