@@ -5,7 +5,7 @@
 #include "src/Drawable.hpp"
 
 #define BOARD_DIM 21
-#define BOARD_ROWS BOARD_DIM
+#define BOARD_ROWS BOARD_DIM * 2
 #define BOARD_COLS BOARD_DIM
 
 int main()

@@ -20,8 +20,11 @@ class SnakeGame
   Poison *poison;
   Snake snake;
   Scoreboard scoreboard;
+
   int growth;
   int poisoned;
+  int curlength;
+  int maxlength;
 
   void createApple()
   {
@@ -39,7 +42,11 @@ class SnakeGame
 
   void handleNextPiece(SnakePiece next)
   {
-    if (apple != NULL) {
+    if (curlength <= 3)
+    {
+      game_over = true;
+    }
+    if (apple != NULL && poison != NULL) {
       switch (board.getCharAt(next.getY(), next.getX())) {
         case 'A':
             eatApple();
@@ -65,7 +72,7 @@ class SnakeGame
             snake.removePiece();
             break;
         } // 씨플플은 케이스문안에서 그냥은 선언 못하고 이렇게 브라켓으 씌워줘야한대
-        default: // 공백도 아니고 애플도 아니면 게임 오버지~ 라는 뜻 우리는 이걸 고쳐야한다.
+        default: // 공백도 아니고 애플도 아니고 포이즌도 아니면 게임 오버~ 라는 뜻
             game_over = true;
             break;
       }
@@ -79,14 +86,19 @@ class SnakeGame
       delete apple;
       apple = NULL;
       growth += 1;
+      curlength += 1;
+      if(curlength>maxlength) maxlength=curlength;
       scoreboard.updateGrowth(growth); // update growth 로 함수를 바꿔야..?
+      scoreboard.updateBest(curlength,maxlength);
   }
   void eatPoisn()
   {
       delete poison;
       poison = NULL;
       poisoned += 1;
+      curlength -= 1;
       scoreboard.updatePoisoned(poisoned);
+      scoreboard.updateBest(curlength,maxlength);
   }
 
 public:
@@ -112,7 +124,9 @@ public:
 
       growth = 0;
       poison = 0;
-      scoreboard.initialize(growth, poisoned); // 여기도 수정 필요 ~~ (, poison )
+      curlength = 4;
+      maxlength = 4;
+      scoreboard.initialize(growth, poisoned, curlength, maxlength); // 여기도 수정 필요 ~~ ( length~~~ )
 
       game_over = false;
       srand(time(NULL));
@@ -161,10 +175,10 @@ public:
                 break;
 
             case 'p':
-                board.setTimeout(-1);
+                board.setTimeout(-1); // 정지
                 while(board.getInput()!='p')
-                    ; // 다시 p를 누를때까지 루프를 벗어나지 않음 == 정지상태
-                board.setTimeout(1000); // 이거 이렇게 하면 안돼고 speed 값을 가져와야하는데...
+                    ; // 다시 p를 누를때까지 루프를 벗어나지 않음 == 정지상태 유지
+                board.setTimeout(300); // 이거 이렇게 하면 안돼고 speed 값을 가져와야하는데...
                 break;
             default:
                 break;
@@ -203,5 +217,13 @@ public:
     int getPoisoned()
     {
         return poisoned;
+    }
+    int getCurlength()
+    {
+        return curlength;
+    }
+    int getMaxlength()
+    {
+        return maxlength;
     }
 };
