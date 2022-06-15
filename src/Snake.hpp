@@ -54,13 +54,6 @@ public:
       return prev_pieces.back();
     }
 
-    Direction getDirectioin(Direction d)
-    {
-      if (cur_direction + d != 0)
-          return cur_direction;
-      // 이건 게임 오버가 아니라 '아무것도 안하기' !!! 게임오버하도록 바꿔줘야함
-    }
-
     void setDirection(Direction d)
     {
       cur_direction = d;

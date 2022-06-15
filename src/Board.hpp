@@ -32,6 +32,11 @@ public:
         addAt(drawable.getY(), drawable.getX(), drawable.getIcon());
     }
 
+    void add(Drawable drawable, chtype ch)
+    {
+        addAt(drawable.getY(), drawable.getX(), ch);
+    }
+
     void addAt(int y, int x, chtype ch)
     {
         mvwaddch(board_win, y, x , ch);

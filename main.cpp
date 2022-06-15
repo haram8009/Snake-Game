@@ -17,6 +17,8 @@ int main()
 
     int stage=2;
 
+    
+
     SnakeGame game(BOARD_COLS, BOARD_ROWS, stage, 300);
 
     while(!game.isOver())

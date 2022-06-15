@@ -13,6 +13,9 @@
 #include "Snake.hpp"
 #include "Scoreboard.hpp"
 
+#define APPLESCORE 5
+#define POISONSCORE -2
+
 class SnakeGame
 {
   Board board;
@@ -24,32 +27,37 @@ class SnakeGame
   Snake snake;
   Scoreboard scoreboard;
 
+  int seconds;
   int growth;
   int poisoned;
   int curlength;
   int maxlength;
+  int score;
+
+  clock_t start_time;
 
   void drawMap()
   {
+    board.clear();
+    board.refresh();
     for (int i=0; i<21; i++){
        for (int j=0; j<42; j++){
-         switch (boardmap.getMapVal(i,j)+'0') {
-           case '0':
-              break;
+         switch ((char)(boardmap.getMapVal(i,j)+48)) {
+           //case '0':
+            //  break;
            case '1': // wall
-              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0'); // y, x, ch
+              board.addAt(i,j,(char)(boardmap.getMapVal(i,j)+48)); // y, x, ch
               break;
            case '2': // immune wall
-              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0');
+              board.addAt(i,j,(char)(boardmap.getMapVal(i,j)+48));
               break;
-            default:
-              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0');
-              break;
+            //default:
+            //  board.addAt(i,j,(char)(boardmap.getMapVal(i,j)+48));
+            //  break;
          }
        }
     }
     board.refresh();
-    // 왜 안그려지냐~~~~!!!!!!
   }
 
   void createApple()
@@ -112,7 +120,7 @@ class SnakeGame
     int x = snake.head().getX();
     board.addAt(y,x,'O');
 
-    board.add(next,'@'); // 새로운 머리
+    board.add(next, '@'); // 새로운 머리
     snake.addPiece(next);
   }
 
@@ -122,6 +130,7 @@ class SnakeGame
       apple = NULL;
       growth += 1;
       curlength += 1;
+      score += APPLESCORE;
       if(curlength>maxlength) maxlength=curlength;
       scoreboard.updateGrowth(growth);
       scoreboard.updateBest(curlength,maxlength);
@@ -132,6 +141,7 @@ class SnakeGame
       poison = NULL;
       poisoned += 1;
       curlength -= 1;
+      score += POISONSCORE;
       scoreboard.updatePoisoned(poisoned);
       scoreboard.updateBest(curlength,maxlength);
   }
@@ -142,9 +152,9 @@ public:
         board = Board(height, width, speed);
         this->stage = stage;
         boardmap = BoardMap(stage);
-        int sb_row = board.getStartRow() + height;
+        int sb_row = board.getStartRow();
         int sb_col = board.getStartCol();
-        scoreboard = Scoreboard(width, sb_row, sb_col);
+        scoreboard = Scoreboard(width, sb_row, sb_col+width);
         initialize();
     }
     ~SnakeGame()
@@ -161,12 +171,15 @@ public:
       board.initialize();
       drawMap(); // 맵
 
+      start_time = time(NULL);
 
       growth = 0;
-      poison = 0;
+      poisoned = 0;
       curlength = 4;
       maxlength = 4;
-      scoreboard.initialize(growth, poisoned, curlength, maxlength);
+      score = 0;
+
+      scoreboard.initialize(growth, poisoned, curlength, maxlength, score);
       game_over = false;
       srand(time(NULL));
       snake.setDirection(down); // 디폴트는 다운
@@ -235,6 +248,15 @@ public:
         if(poison == NULL)
         {
             createPoison();
+        }
+
+        seconds = time(NULL)- start_time;
+        scoreboard.updateSeconds(seconds);
+
+        if (score >= 50)
+        {
+          game_over = true;
+          mvprintw(board.getStartRow(), board.getStartCol(), "EXCELLENT!");
         }
     }
 
