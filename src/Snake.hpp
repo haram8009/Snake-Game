@@ -17,13 +17,13 @@ public:
     SnakePiece()
     {
         this->x = this->y = 0;
-        this->icon = '#';
+        this->icon = 'O';
     }
     SnakePiece(int y, int x)
     {
         this->x = x;
         this->y = y;
-        this->icon = '#';
+        this->icon = 'O';
     }
 };
 

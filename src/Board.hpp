@@ -37,7 +37,7 @@ public:
         mvwaddch(board_win, y, x , ch);
     }
 
-    chtype getInput() //main game loop에서 어떤 역할을..?
+    chtype getInput()
     {
         return wgetch(board_win);
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include <ncurses.h>
 #include "Board.hpp"
+#include "BoardMap.hpp"
 #include "Drawable.hpp"
 #include "Apple.hpp"
 #include "Poison.hpp"
@@ -15,6 +16,8 @@
 class SnakeGame
 {
   Board board;
+  BoardMap boardmap;
+  int stage;
   bool game_over;
   Apple *apple;
   Poison *poison;
@@ -25,6 +28,29 @@ class SnakeGame
   int poisoned;
   int curlength;
   int maxlength;
+
+  void drawMap()
+  {
+    for (int i=0; i<21; i++){
+       for (int j=0; j<42; j++){
+         switch (boardmap.getMapVal(i,j)+'0') {
+           case '0':
+              break;
+           case '1': // wall
+              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0'); // y, x, ch
+              break;
+           case '2': // immune wall
+              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0');
+              break;
+            default:
+              board.addAt(i,j,(boardmap.getMapVal(i,j))+'0');
+              break;
+         }
+       }
+    }
+    board.refresh();
+    // 왜 안그려지냐~~~~!!!!!!
+  }
 
   void createApple()
   {
@@ -71,13 +97,22 @@ class SnakeGame
             board.add(Empty(emptyRow, emptyCol));
             snake.removePiece();
             break;
-        } // 씨플플은 케이스문안에서 그냥은 선언 못하고 이렇게 브라켓으 씌워줘야한대
-        default: // 공백도 아니고 애플도 아니고 포이즌도 아니면 게임 오버~ 라는 뜻
+        } // C++ : 케이스문안에서 그냥은 선언 못하고 이렇게 브라켓으 씌워줘야한다.
+        case 'O': // body
+        case '.': // wall
+        case '#': // immune wall
+            game_over = true;
+            break;
+        default:
             game_over = true;
             break;
       }
     }
-    board.add(next);
+    int y = snake.head().getY();
+    int x = snake.head().getX();
+    board.addAt(y,x,'O');
+
+    board.add(next,'@'); // 새로운 머리
     snake.addPiece(next);
   }
 
@@ -88,7 +123,7 @@ class SnakeGame
       growth += 1;
       curlength += 1;
       if(curlength>maxlength) maxlength=curlength;
-      scoreboard.updateGrowth(growth); // update growth 로 함수를 바꿔야..?
+      scoreboard.updateGrowth(growth);
       scoreboard.updateBest(curlength,maxlength);
   }
   void eatPoisn()
@@ -102,9 +137,11 @@ class SnakeGame
   }
 
 public:
-    SnakeGame(int height, int width, int speed=300)
+    SnakeGame(int height, int width, int stage, int speed=300)
     {
         board = Board(height, width, speed);
+        this->stage = stage;
+        boardmap = BoardMap(stage);
         int sb_row = board.getStartRow() + height;
         int sb_col = board.getStartCol();
         scoreboard = Scoreboard(width, sb_row, sb_col);
@@ -120,19 +157,21 @@ public:
     {
       apple = NULL;
       poison = NULL;
+
       board.initialize();
+      drawMap(); // 맵
+
 
       growth = 0;
       poison = 0;
       curlength = 4;
       maxlength = 4;
-      scoreboard.initialize(growth, poisoned, curlength, maxlength); // 여기도 수정 필요 ~~ ( length~~~ )
-
+      scoreboard.initialize(growth, poisoned, curlength, maxlength);
       game_over = false;
       srand(time(NULL));
-      snake.setDirection(down); //지금 디폴트는 다운
+      snake.setDirection(down); // 디폴트는 다운
 
-      handleNextPiece(SnakePiece(1,1));
+      snake.addPiece(SnakePiece(1,1));
       handleNextPiece(snake.nextHead());
       handleNextPiece(snake.nextHead());
       snake.setDirection(right);
@@ -178,7 +217,7 @@ public:
                 board.setTimeout(-1); // 정지
                 while(board.getInput()!='p')
                     ; // 다시 p를 누를때까지 루프를 벗어나지 않음 == 정지상태 유지
-                board.setTimeout(300); // 이거 이렇게 하면 안돼고 speed 값을 가져와야하는데...
+                board.setTimeout(300);
                 break;
             default:
                 break;

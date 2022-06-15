@@ -15,7 +15,9 @@ int main()
     noecho(); // 키를 눌러도 화면에 띄우지 않음 (processInput이 키입력을 받으면서 화면에 띄우기때문)
     curs_set(0); // 커서 없애기
 
-    SnakeGame game(BOARD_COLS, BOARD_ROWS, 300);
+    int stage=2;
+
+    SnakeGame game(BOARD_COLS, BOARD_ROWS, stage, 300);
 
     while(!game.isOver())
     {
